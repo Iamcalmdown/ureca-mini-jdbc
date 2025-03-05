@@ -43,16 +43,4 @@ public class DBManager {
             e.printStackTrace();
         }
     }
-
-    public static void main(String[] args) {
-        Connection connection = getConnection();
-        if (connection != null) {
-            try {
-                connection.close();
-                System.out.println("종료");
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 }
