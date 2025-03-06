@@ -11,9 +11,9 @@ public class DBManager {
         Connection connection = null;
         try {
             connection = DriverManager.getConnection(url, username, password);
-            System.out.println("연결 성공");
+            System.out.println("디비 연결 성공");
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("DB 연결 실패" + e.getMessage());
         }
 
         return connection;
@@ -21,10 +21,14 @@ public class DBManager {
 
     public static void releaseConnection(PreparedStatement pstmt, Connection connection) {
         try {
-            pstmt.close();
-            connection.close();
+            if (pstmt != null) {
+                pstmt.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("자원 해제 오류" + e.getMessage());
         }
     }
 
@@ -40,7 +44,7 @@ public class DBManager {
                 connection.close();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("자원 해제 오류" + e.getMessage());
         }
     }
 }
