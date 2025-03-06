@@ -60,7 +60,13 @@ public class PhoneListPanel extends JPanel {
             return;
         }
 
-        // ✅ 개통 처리 (userId, phoneId 전달)
+        // 📉 개통 전에 재고 감소 시도 (재고 부족하면 false 반환)
+        if (!phoneDAO.decreaseStock(selectedPhoneId)) {
+            JOptionPane.showMessageDialog(this, "해당 기기는 재고가 부족하여 개통할 수 없습니다.", "개통 실패", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // ✅ 재고 감소가 성공하면 개통 진행
         activationDAO.activateUser(userId, selectedPhoneId);
 
         JOptionPane.showMessageDialog(this, "개통이 완료되었습니다!", "성공", JOptionPane.INFORMATION_MESSAGE);

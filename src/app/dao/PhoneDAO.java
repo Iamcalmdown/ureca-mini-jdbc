@@ -54,7 +54,10 @@ public class PhoneDAO {
         try (Connection connection = DBManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, phoneId);
-            return preparedStatement.executeUpdate() > 0;
+
+            int updatedRows = preparedStatement.executeUpdate();
+            return updatedRows > 0; // 업데이트된 행이 1개 이상이면 true (개통 가능), 아니면 false (개통 불가)
+
         } catch (Exception e) {
             e.printStackTrace();
             return false;

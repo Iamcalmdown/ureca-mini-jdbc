@@ -56,9 +56,6 @@ public class ActivationDAO {
                 pstmt.executeUpdate();
             }
 
-            // 🔹 개통 후 재고 감소
-            new PhoneDAO().decreaseStock(phoneId);
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
