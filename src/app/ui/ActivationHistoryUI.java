@@ -57,6 +57,7 @@ public class ActivationHistoryUI extends JFrame {
     }
 
     // 개통 취소 기능
+    // 📌 개통 취소 기능 (user 테이블에서도 삭제)
     private void cancelActivation() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
@@ -65,11 +66,12 @@ public class ActivationHistoryUI extends JFrame {
         }
 
         int activationId = (int) tableModel.getValueAt(selectedRow, 0);
-        int phoneId = (int) tableModel.getValueAt(selectedRow, 2);
+        int userId = (int) tableModel.getValueAt(selectedRow, 1); // ✅ user_id 가져오기
+        int phoneId = (int) tableModel.getValueAt(selectedRow, 3); // 기종 ID 가져오기
 
         int confirm = JOptionPane.showConfirmDialog(this, "정말로 개통을 취소하시겠습니까?", "확인", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
-            activationDAO.cancelActivation(activationId, phoneId);
+            activationDAO.cancelActivation(activationId, userId, phoneId); // ✅ userId 추가
             JOptionPane.showMessageDialog(this, "개통이 취소되었습니다.", "성공", JOptionPane.INFORMATION_MESSAGE);
             loadActivationHistory(); // 최신 데이터 다시 불러오기
         }

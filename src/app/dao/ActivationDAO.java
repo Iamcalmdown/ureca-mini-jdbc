@@ -100,19 +100,35 @@ public class ActivationDAO {
         return activations;
     }
 
-    // 📌 개통 취소 (내역 삭제 + 재고 복구)
-    public void cancelActivation(int activationId, int phoneId) {
-        String sql = "DELETE FROM activation WHERE activation_id = ?";
+    // 📌 개통 취소 (내역 삭제 + 재고 복구 + 사용자 삭제)
+    public void cancelActivation(int activationId, int userId, int phoneId) {
+        String deleteActivationSql = "DELETE FROM activation WHERE activation_id = ?";
+        String deleteUserSql = "DELETE FROM user WHERE user_id = ?";
 
-        try (Connection con = DBManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (Connection con = DBManager.getConnection()) { // ✅ Connection 범위 유지
+            con.setAutoCommit(false); // 🔹 트랜잭션 시작
 
-            pstmt.setInt(1, activationId);
-            pstmt.executeUpdate();
+            try (PreparedStatement pstmtActivation = con.prepareStatement(deleteActivationSql);
+                 PreparedStatement pstmtUser = con.prepareStatement(deleteUserSql)) {
 
-            // 🔄 개통 취소 후 재고 증가
-            new PhoneDAO().increaseStock(phoneId);
+                // 🔹 activation 테이블에서 개통 내역 삭제
+                pstmtActivation.setInt(1, activationId);
+                pstmtActivation.executeUpdate();
 
+                // 🔹 user 테이블에서 사용자 삭제
+                pstmtUser.setInt(1, userId);
+                pstmtUser.executeUpdate();
+
+                // 🔄 개통 취소 후 재고 증가
+                new PhoneDAO().increaseStock(phoneId);
+
+                con.commit(); // 🔹 트랜잭션 커밋
+            } catch (SQLException e) {
+                con.rollback(); // 🔹 오류 발생 시 롤백
+                e.printStackTrace();
+            } finally {
+                con.setAutoCommit(true); // 🔹 자동 커밋 다시 활성화
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
