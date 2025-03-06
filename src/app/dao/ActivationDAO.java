@@ -10,16 +10,50 @@ import java.util.List;
 public class ActivationDAO {
     // 📌 개통 등록
     public void activateUser(int userId, int phoneId) {
-        String sql = "INSERT INTO activation (user_id, phone_id, activation_date) VALUES (?, ?, NOW())";
+        String getUserCarrierSql = "SELECT carrier_id FROM user WHERE user_id = ?";
+        String getPhoneCarrierSql = "SELECT carrier_id FROM phone WHERE phone_id = ?";
+        String insertActivationSql = "INSERT INTO activation (user_id, phone_id, previous_carrier_id, new_carrier_id, activation_date) VALUES (?, ?, ?, ?, NOW())";
+        String updateUserCarrierSql = "UPDATE user SET carrier_id = ? WHERE user_id = ?";
 
-        try (Connection con = DBManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (Connection con = DBManager.getConnection()) {
+            int previousCarrierId = -1;
+            int newCarrierId = -1;
 
-            pstmt.setInt(1, userId);
-            pstmt.setInt(2, phoneId);
-            pstmt.executeUpdate();
+            // 🔹 기존 사용자 통신사 가져오기
+            try (PreparedStatement pstmt = con.prepareStatement(getUserCarrierSql)) {
+                pstmt.setInt(1, userId);
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next()) {
+                    previousCarrierId = rs.getInt("carrier_id");
+                }
+            }
 
-            // 📉 개통 후 재고 감소
+            // 🔹 개통할 기기의 통신사 가져오기
+            try (PreparedStatement pstmt = con.prepareStatement(getPhoneCarrierSql)) {
+                pstmt.setInt(1, phoneId);
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next()) {
+                    newCarrierId = rs.getInt("carrier_id");
+                }
+            }
+
+            // 🔹 개통 정보 추가
+            try (PreparedStatement pstmt = con.prepareStatement(insertActivationSql)) {
+                pstmt.setInt(1, userId);
+                pstmt.setInt(2, phoneId);
+                pstmt.setInt(3, previousCarrierId);
+                pstmt.setInt(4, newCarrierId);
+                pstmt.executeUpdate();
+            }
+
+            // 🔹 사용자 테이블 통신사 업데이트
+            try (PreparedStatement pstmt = con.prepareStatement(updateUserCarrierSql)) {
+                pstmt.setInt(1, newCarrierId);
+                pstmt.setInt(2, userId);
+                pstmt.executeUpdate();
+            }
+
+            // 🔹 개통 후 재고 감소
             new PhoneDAO().decreaseStock(phoneId);
 
         } catch (SQLException e) {
