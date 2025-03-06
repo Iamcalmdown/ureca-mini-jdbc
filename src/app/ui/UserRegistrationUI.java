@@ -9,16 +9,16 @@ import java.awt.*;
 public class UserRegistrationUI extends JFrame {
     private JTextField nameField, phoneField;
     private JComboBox<String> carrierBox;
-    private JButton registerButton;
+    private JButton registerButton, activationHistoryButton; // 개통 내역 버튼 추가
     private UserDAO userDAO;
 
     public UserRegistrationUI() {
         userDAO = new UserDAO();
 
         setTitle("사용자 등록");
-        setSize(300, 250);
+        setSize(300, 300); // 크기 조정
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridLayout(4, 2, 10, 10));
+        setLayout(new GridLayout(5, 2, 10, 10)); // 행 추가
 
         add(new JLabel("이름:"));
         nameField = new JTextField();
@@ -36,7 +36,13 @@ public class UserRegistrationUI extends JFrame {
         registerButton = new JButton("등록");
         add(registerButton);
 
+        // 개통 내역 보기 버튼 추가
+        activationHistoryButton = new JButton("개통 내역 보기");
+        add(activationHistoryButton);
+
+        // 버튼 리스너 추가
         registerButton.addActionListener(e -> registerUser());
+        activationHistoryButton.addActionListener(e -> new ActivationHistoryUI()); // 개통 내역 보기 창 열기
 
         setVisible(true);
     }
