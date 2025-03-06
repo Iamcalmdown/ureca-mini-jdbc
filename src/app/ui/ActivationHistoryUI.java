@@ -40,6 +40,7 @@ public class ActivationHistoryUI extends JFrame {
     }
 
     // 개통 내역 불러오기
+    // 📌 개통 내역 UI에서 데이터 불러오는 부분 수정
     private void loadActivationHistory() {
         tableModel.setRowCount(0); // 기존 데이터 삭제
         List<ActivationDTO> activations = activationDAO.getActivationHistory();
@@ -47,8 +48,10 @@ public class ActivationHistoryUI extends JFrame {
         for (ActivationDTO activation : activations) {
             tableModel.addRow(new Object[]{
                     activation.getActivationId(),
-                    activation.getUserName(),  // ✅ 사용자 이름으로 변경
-                    activation.getPhoneNumber(), // ✅ 전화번호로 변경
+                    activation.getUserId(),  // ✅ user_id 추가 (hidden column)
+                    activation.getUserName(),  // ✅ 사용자 이름
+                    activation.getPhoneNumber(), // ✅ 전화번호
+                    activation.getPhoneId(),  // ✅ phone_id 추가 (hidden column)
                     activation.getModelName(),
                     activation.getPreviousCarrier() + " → " + activation.getNewCarrier(), // ✅ 기존 통신사 → 변경된 통신사
                     activation.getActivationDate()
@@ -56,8 +59,7 @@ public class ActivationHistoryUI extends JFrame {
         }
     }
 
-    // 개통 취소 기능
-    // 📌 개통 취소 기능 (user 테이블에서도 삭제)
+    // 📌 개통 취소 버튼 기능 수정
     private void cancelActivation() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
@@ -66,12 +68,12 @@ public class ActivationHistoryUI extends JFrame {
         }
 
         int activationId = (int) tableModel.getValueAt(selectedRow, 0);
-        int userId = (int) tableModel.getValueAt(selectedRow, 1); // ✅ user_id 가져오기
-        int phoneId = (int) tableModel.getValueAt(selectedRow, 3); // 기종 ID 가져오기
+        int userId = Integer.parseInt(tableModel.getValueAt(selectedRow, 1).toString()); // ✅ user_id 가져오기
+        int phoneId = Integer.parseInt(tableModel.getValueAt(selectedRow, 4).toString()); // ✅ phone_id 가져오기
 
         int confirm = JOptionPane.showConfirmDialog(this, "정말로 개통을 취소하시겠습니까?", "확인", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
-            activationDAO.cancelActivation(activationId, userId, phoneId); // ✅ userId 추가
+            activationDAO.cancelActivation(activationId, userId, phoneId);
             JOptionPane.showMessageDialog(this, "개통이 취소되었습니다.", "성공", JOptionPane.INFORMATION_MESSAGE);
             loadActivationHistory(); // 최신 데이터 다시 불러오기
         }

@@ -65,10 +65,11 @@ public class ActivationDAO {
     }
 
     // 📌 개통 내역 조회 (🔹 기존 통신사와 변경된 통신사를 포함하도록 수정)
+    // 📌 개통 내역 조회에서 user_id와 phone_id를 추가하여 가져오기
     public List<ActivationDTO> getActivationHistory() {
         List<ActivationDTO> activations = new ArrayList<>();
         String sql = """
-                SELECT a.activation_id, u.name, u.phone_number, p.model_name, 
+                SELECT a.activation_id, u.user_id, u.name, u.phone_number, p.phone_id, p.model_name, 
                        c1.carrier_name AS previous_carrier, c2.carrier_name AS new_carrier, a.activation_date
                 FROM activation a
                 JOIN user u ON a.user_id = u.user_id
@@ -85,8 +86,10 @@ public class ActivationDAO {
             while (rs.next()) {
                 activations.add(new ActivationDTO(
                         rs.getInt("activation_id"),
+                        rs.getInt("user_id"), // ✅ user_id 추가
                         rs.getString("name"),
                         rs.getString("phone_number"),
+                        rs.getInt("phone_id"), // ✅ phone_id 추가
                         rs.getString("model_name"),
                         rs.getString("previous_carrier"), // 기존 통신사
                         rs.getString("new_carrier"),      // 변경된 통신사
