@@ -9,7 +9,7 @@ public class PhoneSelectionUI extends JFrame {
     public PhoneSelectionUI(int userId, int userCarrierId) { // ✅ userId 추가
         setTitle("휴대폰 선택");
         setSize(500, 400);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 
         phoneListPanel = new PhoneListPanel(userId, userCarrierId); // ✅ userId 전달

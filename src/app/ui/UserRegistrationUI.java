@@ -66,8 +66,8 @@ public class UserRegistrationUI extends JFrame {
 
             if (userId != -1) {
                 JOptionPane.showMessageDialog(this, "사용자 등록 완료!", "성공", JOptionPane.INFORMATION_MESSAGE);
-                dispose(); // 현재 창 닫기
-                new PhoneSelectionUI(userId, carrierId); // ✅ userId 추가
+                // ✅ 기존 창을 닫지 않고 새 창을 띄움
+                SwingUtilities.invokeLater(() -> new PhoneSelectionUI(userId, carrierId));
             } else {
                 JOptionPane.showMessageDialog(this, "사용자 정보를 찾을 수 없습니다!", "에러", JOptionPane.ERROR_MESSAGE);
             }
