@@ -74,4 +74,20 @@ public class PhoneDAO {
             return false;
         }
     }
+
+    // (6) 📌 선택한 휴대폰의 통신사 ID 조회
+    public int getCarrierIdByPhoneId(int phoneId) {
+        String sql = "SELECT carrier_id FROM phone WHERE phone_id = ?";
+        try (Connection con = DBManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            pstmt.setInt(1, phoneId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("carrier_id");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1; // 조회 실패 시 -1 반환
+    }
 }

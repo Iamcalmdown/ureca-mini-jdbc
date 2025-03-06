@@ -61,9 +61,16 @@ public class UserRegistrationUI extends JFrame {
         boolean isInserted = userDAO.addUser(user);
 
         if (isInserted) {
-            JOptionPane.showMessageDialog(this, "사용자 등록 완료!", "성공", JOptionPane.INFORMATION_MESSAGE);
-            dispose(); // 현재 창 닫기
-            new PhoneSelectionUI(carrierId); // 개통 선택 화면으로 이동
+            // ✅ 새로 등록된 사용자의 ID 가져오기
+            int userId = userDAO.getUserIdByPhone(phone);
+
+            if (userId != -1) {
+                JOptionPane.showMessageDialog(this, "사용자 등록 완료!", "성공", JOptionPane.INFORMATION_MESSAGE);
+                dispose(); // 현재 창 닫기
+                new PhoneSelectionUI(userId, carrierId); // ✅ userId 추가
+            } else {
+                JOptionPane.showMessageDialog(this, "사용자 정보를 찾을 수 없습니다!", "에러", JOptionPane.ERROR_MESSAGE);
+            }
         } else {
             JOptionPane.showMessageDialog(this, "등록 실패! 전화번호 중복 확인", "에러", JOptionPane.ERROR_MESSAGE);
         }

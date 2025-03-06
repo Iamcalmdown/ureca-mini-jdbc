@@ -6,13 +6,13 @@ import java.awt.*;
 public class PhoneSelectionUI extends JFrame {
     private PhoneListPanel phoneListPanel;
 
-    public PhoneSelectionUI(int userCarrierId) {
+    public PhoneSelectionUI(int userId, int userCarrierId) { // ✅ userId 추가
         setTitle("휴대폰 선택");
         setSize(500, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        phoneListPanel = new PhoneListPanel(userCarrierId);
+        phoneListPanel = new PhoneListPanel(userId, userCarrierId); // ✅ userId 전달
         add(phoneListPanel, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel();

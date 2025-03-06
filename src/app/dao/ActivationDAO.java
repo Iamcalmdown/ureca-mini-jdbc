@@ -12,7 +12,10 @@ public class ActivationDAO {
     public void activateUser(int userId, int phoneId) {
         String getUserCarrierSql = "SELECT carrier_id FROM user WHERE user_id = ?";
         String getPhoneCarrierSql = "SELECT carrier_id FROM phone WHERE phone_id = ?";
-        String insertActivationSql = "INSERT INTO activation (user_id, phone_id, previous_carrier_id, new_carrier_id, activation_date) VALUES (?, ?, ?, ?, NOW())";
+        String insertActivationSql = """
+                INSERT INTO activation (user_id, phone_id, previous_carrier_id, new_carrier_id, activation_date) 
+                VALUES (?, ?, ?, ?, NOW())
+                """;
         String updateUserCarrierSql = "UPDATE user SET carrier_id = ? WHERE user_id = ?";
 
         try (Connection con = DBManager.getConnection()) {
@@ -61,15 +64,17 @@ public class ActivationDAO {
         }
     }
 
-    // 📌 개통 내역 조회
+    // 📌 개통 내역 조회 (🔹 기존 통신사와 변경된 통신사를 포함하도록 수정)
     public List<ActivationDTO> getActivationHistory() {
         List<ActivationDTO> activations = new ArrayList<>();
         String sql = """
-                SELECT a.activation_id, u.name, u.phone_number, p.model_name, c.carrier_name, a.activation_date
+                SELECT a.activation_id, u.name, u.phone_number, p.model_name, 
+                       c1.carrier_name AS previous_carrier, c2.carrier_name AS new_carrier, a.activation_date
                 FROM activation a
                 JOIN user u ON a.user_id = u.user_id
                 JOIN phone p ON a.phone_id = p.phone_id
-                JOIN carrier c ON p.carrier_id = c.carrier_id
+                JOIN carrier c1 ON a.previous_carrier_id = c1.carrier_id
+                JOIN carrier c2 ON a.new_carrier_id = c2.carrier_id
                 ORDER BY a.activation_date DESC
                 """;
 
@@ -83,7 +88,8 @@ public class ActivationDAO {
                         rs.getString("name"),
                         rs.getString("phone_number"),
                         rs.getString("model_name"),
-                        rs.getString("carrier_name"),
+                        rs.getString("previous_carrier"), // 기존 통신사
+                        rs.getString("new_carrier"),      // 변경된 통신사
                         rs.getTimestamp("activation_date")
                 ));
             }

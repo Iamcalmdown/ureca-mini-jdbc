@@ -1,26 +1,29 @@
 package app.dto;
 
 import java.sql.Timestamp;
-import java.util.Date;
 
 public class ActivationDTO {
     private int activationId;
-    private int userId;
-    private int phoneId;
-    private int previousCarrierId; // 기존 통신사
-    private int newCarrierId; // 변경된 통신사
-    private Date activationDate;
+    private String userName;
+    private String phoneNumber;
+    private String modelName;
+    private String previousCarrier; // 기존 통신사 추가
+    private String newCarrier; // 변경된 통신사 추가
+    private Timestamp activationDate;
 
-    public ActivationDTO(int activationId, String name, String phoneNumber, String modelName, String carrierName, Timestamp activationDate) {
+    // 📌 생성자 수정
+    public ActivationDTO(int activationId, String userName, String phoneNumber, String modelName,
+                         String previousCarrier, String newCarrier, Timestamp activationDate) {
+        this.activationId = activationId;
+        this.userName = userName;
+        this.phoneNumber = phoneNumber;
+        this.modelName = modelName;
+        this.previousCarrier = previousCarrier;
+        this.newCarrier = newCarrier;
+        this.activationDate = activationDate;
     }
 
-    public ActivationDTO(int userId, int phoneId, int previousCarrierId, int newCarrierId) {
-        this.userId = userId;
-        this.phoneId = phoneId;
-        this.previousCarrierId = previousCarrierId;
-        this.newCarrierId = newCarrierId;
-    }
-
+    // 📌 Getter & Setter 추가
     public int getActivationId() {
         return activationId;
     }
@@ -29,43 +32,51 @@ public class ActivationDTO {
         this.activationId = activationId;
     }
 
-    public int getUserId() {
-        return userId;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
-    public int getPhoneId() {
-        return phoneId;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setPhoneId(int phoneId) {
-        this.phoneId = phoneId;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
-    public int getPreviousCarrierId() {
-        return previousCarrierId;
+    public String getModelName() {
+        return modelName;
     }
 
-    public void setPreviousCarrierId(int previousCarrierId) {
-        this.previousCarrierId = previousCarrierId;
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
     }
 
-    public int getNewCarrierId() {
-        return newCarrierId;
+    public String getPreviousCarrier() {
+        return previousCarrier;
     }
 
-    public void setNewCarrierId(int newCarrierId) {
-        this.newCarrierId = newCarrierId;
+    public void setPreviousCarrier(String previousCarrier) {
+        this.previousCarrier = previousCarrier;
     }
 
-    public Date getActivationDate() {
+    public String getNewCarrier() {
+        return newCarrier;
+    }
+
+    public void setNewCarrier(String newCarrier) {
+        this.newCarrier = newCarrier;
+    }
+
+    public Timestamp getActivationDate() {
         return activationDate;
     }
 
-    public void setActivationDate(Date activationDate) {
+    public void setActivationDate(Timestamp activationDate) {
         this.activationDate = activationDate;
     }
 }
