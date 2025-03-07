@@ -10,7 +10,6 @@ import java.awt.event.FocusEvent;
 public class UIComponents {
     // 🎨 **공통 스타일 상수**
     private static final Color PRIMARY_COLOR = new Color(49, 130, 246); // 기본 블루
-    private static final Color HOVER_COLOR = new Color(41, 121, 255);   // Hover 블루
     private static final Color TEXT_COLOR = new Color(51, 51, 51);      // 다크 그레이
     private static final Color TABLE_HEADER_COLOR = new Color(230, 230, 230); // 연한 회색
     private static final Font DEFAULT_FONT = new Font("SansSerif", Font.PLAIN, 14);
@@ -37,22 +36,7 @@ public class UIComponents {
     public static JButton createStyledButton(String text) {
         JButton button = new JButton(text);
         button.setFont(BOLD_FONT);
-        button.setForeground(Color.WHITE);
-        button.setBackground(PRIMARY_COLOR);
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
         button.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
-
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(HOVER_COLOR);
-            }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(PRIMARY_COLOR);
-            }
-        });
-
         return button;
     }
 
@@ -61,7 +45,7 @@ public class UIComponents {
         JLabel label = new JLabel(text);
         label.setFont(DEFAULT_FONT);
         label.setForeground(TEXT_COLOR);
-        label.setHorizontalAlignment(SwingConstants.LEFT);
+        label.setHorizontalAlignment(SwingConstants.CENTER);
         return label;
     }
 

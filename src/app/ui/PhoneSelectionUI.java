@@ -13,28 +13,20 @@ public class PhoneSelectionUI extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // ✅ 배경 색상 설정
-        getContentPane().setBackground(new Color(245, 245, 245));
-
         // 🔹 상단 패널 (버튼 영역)
-        JPanel topPanel = new JPanel();
-        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
-        topPanel.setBorder(BorderFactory.createEmptyBorder(30, 40, 20, 40));
-        topPanel.setBackground(new Color(245, 245, 245));
-
-        // 🔹 라벨 추가
-        topPanel.add(UIComponents.createLabel("휴대폰 선택"));
-        topPanel.add(Box.createVerticalStrut(15));
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10)); // 가로 배치 & 간격 조정
 
         // 🔹 버튼 추가 (기기변경 / 번호이동)
         JButton changeDeviceButton = UIComponents.createStyledButton("기기변경");
         JButton numberMoveButton = UIComponents.createStyledButton("번호이동");
 
+        changeDeviceButton.setPreferredSize(new Dimension(140, 35));
+        numberMoveButton.setPreferredSize(new Dimension(140, 35));
+
         changeDeviceButton.addActionListener(e -> phoneListPanel.loadPhoneList(true));
         numberMoveButton.addActionListener(e -> phoneListPanel.loadPhoneList(false));
 
         topPanel.add(changeDeviceButton);
-        topPanel.add(Box.createVerticalStrut(10));
         topPanel.add(numberMoveButton);
 
         // ✅ 휴대폰 목록 패널 추가
