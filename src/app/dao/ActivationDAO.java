@@ -101,36 +101,31 @@ public class ActivationDAO {
     }
 
     // 📌 개통 취소 (내역 삭제 + 재고 복구 + 사용자 삭제)
-    public void cancelActivation(int activationId, int userId, int phoneId) {
+    public boolean cancelActivation(int activationId, int userId, int phoneId) {
         String deleteActivationSql = "DELETE FROM activation WHERE activation_id = ?";
         String deleteUserSql = "DELETE FROM user WHERE user_id = ?";
 
-        try (Connection con = DBManager.getConnection()) { // ✅ Connection 범위 유지
-            con.setAutoCommit(false); // 🔹 트랜잭션 시작
+        try (Connection con = DBManager.getConnection();
+             PreparedStatement pstmtActivation = con.prepareStatement(deleteActivationSql);
+             PreparedStatement pstmtUser = con.prepareStatement(deleteUserSql)) {
 
-            try (PreparedStatement pstmtActivation = con.prepareStatement(deleteActivationSql);
-                 PreparedStatement pstmtUser = con.prepareStatement(deleteUserSql)) {
+            // 🔹 activation 테이블에서 개통 내역 삭제
+            pstmtActivation.setInt(1, activationId);
+            int deletedActivation = pstmtActivation.executeUpdate();
 
-                // 🔹 activation 테이블에서 개통 내역 삭제
-                pstmtActivation.setInt(1, activationId);
-                pstmtActivation.executeUpdate();
+            // 🔹 user 테이블에서 사용자 삭제
+            pstmtUser.setInt(1, userId);
+            int deletedUser = pstmtUser.executeUpdate();
 
-                // 🔹 user 테이블에서 사용자 삭제
-                pstmtUser.setInt(1, userId);
-                pstmtUser.executeUpdate();
+            // 🔄 개통 취소 후 재고 증가
+            boolean stockUpdated = new PhoneDAO().increaseStock(phoneId);
 
-                // 🔄 개통 취소 후 재고 증가
-                new PhoneDAO().increaseStock(phoneId);
+            // ✅ 모든 작업이 성공하면 true 반환
+            return (deletedActivation > 0 && deletedUser > 0 && stockUpdated);
 
-                con.commit(); // 🔹 트랜잭션 커밋
-            } catch (SQLException e) {
-                con.rollback(); // 🔹 오류 발생 시 롤백
-                e.printStackTrace();
-            } finally {
-                con.setAutoCommit(true); // 🔹 자동 커밋 다시 활성화
-            }
         } catch (SQLException e) {
             e.printStackTrace();
+            return false; // ❌ 실패 시 false 반환
         }
     }
 }

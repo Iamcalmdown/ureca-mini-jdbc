@@ -47,16 +47,28 @@ public class ActivationHistoryUI extends JFrame {
 
         for (ActivationDTO activation : activations) {
             tableModel.addRow(new Object[]{
-                    activation.getActivationId(),
-                    activation.getUserId(),  // ✅ user_id 추가 (hidden column)
-                    activation.getUserName(),  // ✅ 사용자 이름
-                    activation.getPhoneNumber(), // ✅ 전화번호
-                    activation.getPhoneId(),  // ✅ phone_id 추가 (hidden column)
-                    activation.getModelName(),
-                    activation.getPreviousCarrier() + " → " + activation.getNewCarrier(), // ✅ 기존 통신사 → 변경된 통신사
-                    activation.getActivationDate()
+                    activation.getActivationId(), // ✅ 개통 ID (숨김 처리)
+                    activation.getUserId(),       // ✅ 사용자 ID (숨김 처리)
+                    activation.getPhoneId(),      // ✅ 휴대폰 ID (숨김 처리)
+                    activation.getUserName(),     // ✅ 이름 (표시)
+                    activation.getPhoneNumber(),  // ✅ 전화번호 (표시)
+                    activation.getModelName(),    // ✅ 기종 (표시)
+                    activation.getPreviousCarrier() + " → " + activation.getNewCarrier(), // ✅ 통신사 (표시)
+                    activation.getActivationDate() // ✅ 개통 날짜 (표시)
             });
         }
+
+        // 🔥 ID 컬럼을 정확하게 숨기기 (앞에서부터 3개 숨김)
+        table.removeColumn(table.getColumnModel().getColumn(0)); // 개통 ID 숨기기
+        table.removeColumn(table.getColumnModel().getColumn(0)); // 사용자 ID 숨기기
+        table.removeColumn(table.getColumnModel().getColumn(0)); // 휴대폰 ID 숨기기
+    }
+
+    // 📌 특정 컬럼 숨기기 (JTable에서 특정 컬럼을 보이지 않도록 설정)
+    private void hideColumn(int index) {
+        table.getColumnModel().getColumn(index).setMinWidth(0);
+        table.getColumnModel().getColumn(index).setMaxWidth(0);
+        table.getColumnModel().getColumn(index).setWidth(0);
     }
 
     // 📌 개통 취소 버튼 기능 수정
@@ -67,15 +79,19 @@ public class ActivationHistoryUI extends JFrame {
             return;
         }
 
-        int activationId = (int) tableModel.getValueAt(selectedRow, 0);
-        int userId = Integer.parseInt(tableModel.getValueAt(selectedRow, 1).toString()); // ✅ user_id 가져오기
-        int phoneId = Integer.parseInt(tableModel.getValueAt(selectedRow, 4).toString()); // ✅ phone_id 가져오기
+        // ✅ 숨겨진 ID 가져오기 (테이블에 보이지 않지만 내부적으로 저장됨)
+        int activationId = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString()); // 개통 ID
+        int userId = Integer.parseInt(tableModel.getValueAt(selectedRow, 1).toString()); // 사용자 ID
+        int phoneId = Integer.parseInt(tableModel.getValueAt(selectedRow, 2).toString()); // 휴대폰 ID
 
         int confirm = JOptionPane.showConfirmDialog(this, "정말로 개통을 취소하시겠습니까?", "확인", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
-            activationDAO.cancelActivation(activationId, userId, phoneId);
-            JOptionPane.showMessageDialog(this, "개통이 취소되었습니다.", "성공", JOptionPane.INFORMATION_MESSAGE);
-            loadActivationHistory(); // 최신 데이터 다시 불러오기
+            if (activationDAO.cancelActivation(activationId, userId, phoneId)) {
+                JOptionPane.showMessageDialog(this, "개통이 취소되었습니다.", "성공", JOptionPane.INFORMATION_MESSAGE);
+                loadActivationHistory(); // ✅ 개통 내역 새로고침
+            } else {
+                JOptionPane.showMessageDialog(this, "개통 취소에 실패했습니다.", "오류", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 

@@ -6,12 +6,11 @@ import app.dto.PhoneDTO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PhoneDAO {
-
-    // 같은 통신사의 기기 조회 (기기변경)  다른 통신사의 기기 조회 (번호이동)
 
     public List<PhoneDTO> getPhones(int carrierId, boolean isSameCarrier) {
         String condition = isSameCarrier ? "WHERE p.carrier_id = ?" : "WHERE p.carrier_id <> ?";
@@ -84,6 +83,22 @@ public class PhoneDAO {
             e.printStackTrace();
             return false;
         }
+    }
+
+    // (6) 📌 선택한 휴대폰의 통신사 ID 조회
+    public int getCarrierIdByPhoneId(int phoneId) {
+        String sql = "SELECT carrier_id FROM phone WHERE phone_id = ?";
+        try (Connection con = DBManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            pstmt.setInt(1, phoneId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("carrier_id");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1; // 조회 실패 시 -1 반환
     }
 
     public int getPhoneIdByModel(String modelName) {
