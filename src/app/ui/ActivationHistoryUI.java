@@ -22,6 +22,8 @@ public class ActivationHistoryUI extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 
+        setLocationRelativeTo(null);
+
         // ✅ 테이블 컬럼명 정의 (숨김 컬럼 포함)
         String[] columnNames = {"개통 ID", "사용자 ID", "휴대폰 ID", "이름", "전화번호", "기종", "통신사", "개통 날짜"};
         tableModel = new DefaultTableModel(columnNames, 0);

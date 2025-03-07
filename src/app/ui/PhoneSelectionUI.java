@@ -12,6 +12,8 @@ public class PhoneSelectionUI extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 
+        setLocationRelativeTo(null);
+
         phoneListPanel = new PhoneListPanel(userId, userCarrierId); // ✅ userId 전달
         add(phoneListPanel, BorderLayout.CENTER);
 
