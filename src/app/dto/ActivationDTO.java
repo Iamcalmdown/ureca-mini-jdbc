@@ -3,15 +3,15 @@ package app.dto;
 import java.sql.Timestamp;
 
 public class ActivationDTO {
-    private int activationId;
-    private int userId; // ✅ user_id 추가
-    private String userName;
+    private int activationId; // 기본키
+    private int userId; // 개통한 사용자 식별
+    private String userName; // 사용자 정보 조회
     private String phoneNumber;
-    private int phoneId; // ✅ phone_id 추가
+    private int phoneId; // // 개통한 휴대폰 정보 저장
     private String modelName;
-    private String previousCarrier;
+    private String previousCarrier; // 통신사 정보 저장
     private String newCarrier;
-    private Timestamp activationDate;
+    private Timestamp activationDate; // 날짜 저장
 
     public ActivationDTO(int activationId, int userId, String userName, String phoneNumber, int phoneId,
                          String modelName, String previousCarrier, String newCarrier, Timestamp activationDate) {

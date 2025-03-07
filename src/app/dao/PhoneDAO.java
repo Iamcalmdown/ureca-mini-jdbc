@@ -6,18 +6,17 @@ import app.dto.PhoneDTO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PhoneDAO {
 
+    // 기기변경, 번호이동 선택
     public List<PhoneDTO> getPhones(int carrierId, boolean isSameCarrier) {
         String condition = isSameCarrier ? "WHERE p.carrier_id = ?" : "WHERE p.carrier_id <> ?";
         return fetchPhoneList(condition, carrierId);
     }
 
-    // (3) 공통 조회 메서드 (carrierName 포함)
     private List<PhoneDTO> fetchPhoneList(String condition, int carrierId) {
         List<PhoneDTO> phones = new ArrayList<>();
         String sql = "SELECT p.phone_id, p.model_name, p.carrier_id, c.carrier_name, p.stock_count " +
@@ -26,15 +25,15 @@ public class PhoneDAO {
         try (Connection con = DBManager.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmt.setInt(1, carrierId);
-            ResultSet rs = pstmt.executeQuery();
+            ResultSet resultSet = pstmt.executeQuery();
 
-            while (rs.next()) {
+            while (resultSet.next()) {
                 phones.add(new PhoneDTO(
-                        rs.getInt("phone_id"),
-                        rs.getString("model_name"),
-                        rs.getInt("carrier_id"),
-                        rs.getString("carrier_name"),
-                        rs.getInt("stock_count")
+                        resultSet.getInt("phone_id"),
+                        resultSet.getString("model_name"),
+                        resultSet.getInt("carrier_id"),
+                        resultSet.getString("carrier_name"),
+                        resultSet.getInt("stock_count")
                 ));
             }
         } catch (Exception e) {
@@ -43,25 +42,25 @@ public class PhoneDAO {
         return phones;
     }
 
-    // (4) 개통 시 재고 감소
+    // 개통 시 재고 감소
     public int updateStock(int phoneId, int change) {
         String sql = "UPDATE phone SET stock_count = stock_count + ? WHERE phone_id = ? AND stock_count + ? >= 0";
-        String getStockSql = "SELECT stock_count FROM phone WHERE phone_id = ?"; // ✅ 변경된 재고 조회 추가
+        String getStockSql = "SELECT stock_count FROM phone WHERE phone_id = ?";
 
-        try (Connection con = DBManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
+        try (Connection connection = DBManager.getConnection();
+             PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setInt(1, change);
             pstmt.setInt(2, phoneId);
             pstmt.setInt(3, change);
 
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows > 0) {
-                // ✅ 업데이트 성공했으면 변경된 재고 반환
-                try (PreparedStatement stockPstmt = con.prepareStatement(getStockSql)) {
+                // 수정완료되면 바로 조회쿼리 동작
+                try (PreparedStatement stockPstmt = connection.prepareStatement(getStockSql)) {
                     stockPstmt.setInt(1, phoneId);
-                    ResultSet rs = stockPstmt.executeQuery();
-                    if (rs.next()) {
-                        return rs.getInt("stock_count"); // 📌 정확한 재고 반환
+                    ResultSet resultSet = stockPstmt.executeQuery();
+                    if (resultSet.next()) {
+                        return resultSet.getInt("stock_count"); // 재고 반환
                     }
                 }
             }
@@ -71,48 +70,17 @@ public class PhoneDAO {
         return -1; // 실패 시 -1 반환
     }
 
-    // (5) 개통 취소 시 재고 증가
+    // 개통 취소 시 재고 증가
     public boolean increaseStock(int phoneId) {
         String sql = "UPDATE phone SET stock_count = stock_count + 1 WHERE phone_id = ?";
 
         try (Connection connection = DBManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setInt(1, phoneId);
-            return preparedStatement.executeUpdate() > 0;
+             PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, phoneId);
+            return pstmt.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
-    }
-
-    // (6) 📌 선택한 휴대폰의 통신사 ID 조회
-    public int getCarrierIdByPhoneId(int phoneId) {
-        String sql = "SELECT carrier_id FROM phone WHERE phone_id = ?";
-        try (Connection con = DBManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
-            pstmt.setInt(1, phoneId);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt("carrier_id");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1; // 조회 실패 시 -1 반환
-    }
-
-    public int getPhoneIdByModel(String modelName) {
-        String sql = "SELECT phone_id FROM phone WHERE model_name = ?";
-        try (Connection con = DBManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
-            pstmt.setString(1, modelName);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt("phone_id");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1; // 조회 실패 시 -1 반환
     }
 }

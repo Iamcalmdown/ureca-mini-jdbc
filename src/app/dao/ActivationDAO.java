@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ActivationDAO {
-    // 📌 개통 등록
+    // 개통 등록
     public void activateUser(int userId, int phoneId) {
         String getUserCarrierSql = "SELECT carrier_id FROM user WHERE user_id = ?";
         String getPhoneCarrierSql = "SELECT carrier_id FROM phone WHERE phone_id = ?";
@@ -18,30 +18,30 @@ public class ActivationDAO {
                 """;
         String updateUserCarrierSql = "UPDATE user SET carrier_id = ? WHERE user_id = ?";
 
-        try (Connection con = DBManager.getConnection()) {
+        try (Connection connection = DBManager.getConnection()) {
             int previousCarrierId = -1;
             int newCarrierId = -1;
 
             // 🔹 기존 사용자 통신사 가져오기
-            try (PreparedStatement pstmt = con.prepareStatement(getUserCarrierSql)) {
+            try (PreparedStatement pstmt = connection.prepareStatement(getUserCarrierSql)) {
                 pstmt.setInt(1, userId);
-                ResultSet rs = pstmt.executeQuery();
-                if (rs.next()) {
-                    previousCarrierId = rs.getInt("carrier_id");
+                ResultSet resultSet = pstmt.executeQuery();
+                if (resultSet.next()) {
+                    previousCarrierId = resultSet.getInt("carrier_id");
                 }
             }
 
-            // 🔹 개통할 기기의 통신사 가져오기
-            try (PreparedStatement pstmt = con.prepareStatement(getPhoneCarrierSql)) {
+            // 개통할 기기의 통신사 가져오기
+            try (PreparedStatement pstmt = connection.prepareStatement(getPhoneCarrierSql)) {
                 pstmt.setInt(1, phoneId);
-                ResultSet rs = pstmt.executeQuery();
-                if (rs.next()) {
-                    newCarrierId = rs.getInt("carrier_id");
+                ResultSet resultSet = pstmt.executeQuery();
+                if (resultSet.next()) {
+                    newCarrierId = resultSet.getInt("carrier_id");
                 }
             }
 
-            // 🔹 개통 정보 추가
-            try (PreparedStatement pstmt = con.prepareStatement(insertActivationSql)) {
+            // 개통 정보 추가
+            try (PreparedStatement pstmt = connection.prepareStatement(insertActivationSql)) {
                 pstmt.setInt(1, userId);
                 pstmt.setInt(2, phoneId);
                 pstmt.setInt(3, previousCarrierId);
@@ -49,8 +49,8 @@ public class ActivationDAO {
                 pstmt.executeUpdate();
             }
 
-            // 🔹 사용자 테이블 통신사 업데이트
-            try (PreparedStatement pstmt = con.prepareStatement(updateUserCarrierSql)) {
+            // 사용자 테이블 통신사 업데이트
+            try (PreparedStatement pstmt = connection.prepareStatement(updateUserCarrierSql)) {
                 pstmt.setInt(1, newCarrierId);
                 pstmt.setInt(2, userId);
                 pstmt.executeUpdate();
@@ -61,8 +61,7 @@ public class ActivationDAO {
         }
     }
 
-    // 📌 개통 내역 조회 (🔹 기존 통신사와 변경된 통신사를 포함하도록 수정)
-    // 📌 개통 내역 조회에서 user_id와 phone_id를 추가하여 가져오기
+    // 개통 내역 조회에서 user_id와 phone_id를 추가하여 가져오기
     public List<ActivationDTO> getActivationHistory() {
         List<ActivationDTO> activations = new ArrayList<>();
         String sql = """
@@ -76,21 +75,21 @@ public class ActivationDAO {
                 ORDER BY a.activation_date DESC
                 """;
 
-        try (Connection con = DBManager.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+        try (Connection connection = DBManager.getConnection();
+             PreparedStatement pstmt = connection.prepareStatement(sql);
+             ResultSet resultSet = pstmt.executeQuery()) {
 
-            while (rs.next()) {
+            while (resultSet.next()) {
                 activations.add(new ActivationDTO(
-                        rs.getInt("activation_id"),
-                        rs.getInt("user_id"), // ✅ user_id 추가
-                        rs.getString("name"),
-                        rs.getString("phone_number"),
-                        rs.getInt("phone_id"), // ✅ phone_id 추가
-                        rs.getString("model_name"),
-                        rs.getString("previous_carrier"), // 기존 통신사
-                        rs.getString("new_carrier"),      // 변경된 통신사
-                        rs.getTimestamp("activation_date")
+                        resultSet.getInt("activation_id"),
+                        resultSet.getInt("user_id"), // ✅ user_id 추가
+                        resultSet.getString("name"),
+                        resultSet.getString("phone_number"),
+                        resultSet.getInt("phone_id"), // ✅ phone_id 추가
+                        resultSet.getString("model_name"),
+                        resultSet.getString("previous_carrier"), // 기존 통신사
+                        resultSet.getString("new_carrier"),      // 변경된 통신사
+                        resultSet.getTimestamp("activation_date")
                 ));
             }
 
@@ -100,32 +99,32 @@ public class ActivationDAO {
         return activations;
     }
 
-    // 📌 개통 취소 (내역 삭제 + 재고 복구 + 사용자 삭제)
+    // 개통 취소 (내역 삭제 + 재고 복구 + 사용자 삭제)
     public boolean cancelActivation(int activationId, int userId, int phoneId) {
         String deleteActivationSql = "DELETE FROM activation WHERE activation_id = ?";
         String deleteUserSql = "DELETE FROM user WHERE user_id = ?";
 
-        try (Connection con = DBManager.getConnection();
-             PreparedStatement pstmtActivation = con.prepareStatement(deleteActivationSql);
-             PreparedStatement pstmtUser = con.prepareStatement(deleteUserSql)) {
+        try (Connection connection = DBManager.getConnection();
+             PreparedStatement pstmtActivation = connection.prepareStatement(deleteActivationSql);
+             PreparedStatement pstmtUser = connection.prepareStatement(deleteUserSql)) {
 
-            // 🔹 activation 테이블에서 개통 내역 삭제
+            // 개통 내역 삭제
             pstmtActivation.setInt(1, activationId);
             int deletedActivation = pstmtActivation.executeUpdate();
 
-            // 🔹 user 테이블에서 사용자 삭제
+            // 사용자 삭제
             pstmtUser.setInt(1, userId);
             int deletedUser = pstmtUser.executeUpdate();
 
-            // 🔄 개통 취소 후 재고 증가
+            // 개통 취소 후 재고 증가
             boolean stockUpdated = new PhoneDAO().increaseStock(phoneId);
 
-            // ✅ 모든 작업이 성공하면 true 반환
+            // 작업 수행 완료 시 true 반환
             return (deletedActivation > 0 && deletedUser > 0 && stockUpdated);
 
         } catch (SQLException e) {
             e.printStackTrace();
-            return false; // ❌ 실패 시 false 반환
+            return false; // 실패 시 false 반환
         }
     }
 }

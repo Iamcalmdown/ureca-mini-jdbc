@@ -11,7 +11,6 @@ import java.util.List;
 public class ActivationHistoryUI extends JFrame {
     private JTable table;
     private DefaultTableModel tableModel;
-    private JButton cancelActivationButton;
     private ActivationDAO activationDAO;
 
     public ActivationHistoryUI() {
@@ -28,13 +27,19 @@ public class ActivationHistoryUI extends JFrame {
         add(titleLabel, BorderLayout.NORTH);
 
         String[] columnNames = {"개통 ID", "사용자 ID", "휴대폰 ID", "이름", "전화번호", "기종", "통신사", "개통 날짜"};
-        tableModel = new DefaultTableModel(columnNames, 0);
+        tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
         table = new JTable(tableModel);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane scrollPane = new JScrollPane(table);
         add(scrollPane, BorderLayout.CENTER);
 
-        cancelActivationButton = new JButton("개통 취소");
+        JButton cancelActivationButton = new JButton("개통 취소");
         cancelActivationButton.addActionListener(e -> cancelActivation());
 
         JPanel bottomPanel = new JPanel();
@@ -49,7 +54,6 @@ public class ActivationHistoryUI extends JFrame {
         tableModel.setRowCount(0);
 
         List<ActivationDTO> activations = activationDAO.getActivationHistory();
-
         for (ActivationDTO activation : activations) {
             tableModel.addRow(new Object[]{
                     activation.getActivationId(),
@@ -63,14 +67,9 @@ public class ActivationHistoryUI extends JFrame {
             });
         }
 
-        table.setModel(tableModel);
-
-        SwingUtilities.invokeLater(() -> {
-            hideColumn(0);
-            hideColumn(1);
-            hideColumn(2);
-            table.repaint();
-        });
+        hideColumn(0);
+        hideColumn(1);
+        hideColumn(2);
     }
 
     private void hideColumn(int index) {
@@ -83,26 +82,22 @@ public class ActivationHistoryUI extends JFrame {
     private void cancelActivation() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "⚠ 개통을 취소할 내역을 선택하세요.", "경고", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "개통을 취소할 내역을 선택하세요.", "경고", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        int activationId = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString());
-        int userId = Integer.parseInt(tableModel.getValueAt(selectedRow, 1).toString());
-        int phoneId = Integer.parseInt(tableModel.getValueAt(selectedRow, 2).toString());
+        int activationId = (int) tableModel.getValueAt(selectedRow, 0);
+        int userId = (int) tableModel.getValueAt(selectedRow, 1);
+        int phoneId = (int) tableModel.getValueAt(selectedRow, 2);
 
         int confirm = JOptionPane.showConfirmDialog(this, "정말로 개통을 취소하시겠습니까?", "확인", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
             if (activationDAO.cancelActivation(activationId, userId, phoneId)) {
-                JOptionPane.showMessageDialog(this, "✅ 개통이 취소되었습니다.", "성공", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "개통이 취소되었습니다.", "성공", JOptionPane.INFORMATION_MESSAGE);
                 loadActivationHistory();
             } else {
-                JOptionPane.showMessageDialog(this, "❌ 개통 취소에 실패했습니다.", "오류", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "개통 취소에 실패했습니다.", "오류", JOptionPane.ERROR_MESSAGE);
             }
         }
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(ActivationHistoryUI::new);
     }
 }

@@ -1,40 +1,39 @@
 package app.dto;
 
 public class UserDTO {
+    private int userId; // ✅ 추가
     private String name;
     private String phoneNumber;
-    private int carrierId; // 사용자의 기존 통신사 ID
+    private int carrierId;
 
-    public UserDTO() {
+    // ✅ 기존 사용자 조회 시 사용 (userId 포함)
+    public UserDTO(int userId, String name, String phoneNumber, int carrierId) {
+        this.userId = userId;
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.carrierId = carrierId;
     }
 
+    // ✅ 새로운 사용자 등록 시 사용 (userId 없이)
     public UserDTO(String name, String phoneNumber, int carrierId) {
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.carrierId = carrierId;
     }
 
-    public String getName() {
-        return name;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getName() {
+        return name;
     }
 
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
     public int getCarrierId() {
         return carrierId;
-    }
-
-    public void setCarrierId(int carrierId) {
-        this.carrierId = carrierId;
     }
 }
