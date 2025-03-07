@@ -18,10 +18,12 @@ public class UserRegistrationUI extends JFrame {
         userDAO = new UserDAO();
 
         setTitle("사용자 등록");
-        setSize(300, 300);
+        setSize(500, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(6, 2, 10, 10));
 
+        setLocationRelativeTo(null);
+        
         add(new JLabel("이름:"));
         nameField = new JTextField("이름 입력");
         addTextFieldFocusListener(nameField);
