@@ -75,9 +75,10 @@ LG U+ 유레카 2기 미니 프로젝트 휴대폰 개통관리 프로그램(CRU
 
 <img width="612" alt="Image" src="https://github.com/user-attachments/assets/ae4a531d-3b12-4802-9971-03fec71839c4" />
 
+- 사용자가 희망하는 휴대폰 개통 선택인 기기변경과 번호이동에 대한 UI로 해당되는 통신사 목록을 볼 수 있습니다.
+
 <img width="498" alt="Image" src="https://github.com/user-attachments/assets/ed8b0eae-16ae-4966-bae3-0ce5dab7a362" />
 
-- 사용자가 희망하는 휴대폰 개통 선택인 기기변경과 번호이동에 대한 UI로 해당되는 통신사 목록을 볼 수 있습니다.
 - 개통할 시 재고가 감소합니다.
 
 ### 개통 내역
