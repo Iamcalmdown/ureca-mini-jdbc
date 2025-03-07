@@ -1,6 +1,7 @@
 # ureca-mini-jdbc
 
 LG U+ 유레카 2기 미니 프로젝트 휴대폰 개통관리 프로그램(CRUD)
+
 <img width="376" alt="Image" src="https://github.com/user-attachments/assets/bc8653be-3369-455f-9281-ae0fe6ce21dc" />
 
 # 프로젝트 개요
@@ -8,13 +9,9 @@ LG U+ 유레카 2기 미니 프로젝트 휴대폰 개통관리 프로그램(CRU
 이 프로젝트는 **휴대폰 개통 관리 시스템**으로, 사용자와 휴대폰 정보를 관리하며 개통 내역을 기록하고 조회할 수 있는 기능을 제공합니다. Java 기반으로 개발되었으며, 데이터베이스 연동을 통해 CRUD 작업을
 수행합니다.
 
----
-
 ## ERD
 
 <img width="931" alt="Image" src="https://github.com/user-attachments/assets/b440f44c-6351-40c1-b07c-837318c4b00a" />
-
----
 
 ## 패키지별 주요 역할
 
@@ -49,8 +46,6 @@ LG U+ 유레카 2기 미니 프로젝트 휴대폰 개통관리 프로그램(CRU
         - **`PhoneListPanel`**: 휴대폰 목록 표시 및 선택 기능 제공.
         - **`UIComponents`**: UI 스타일링 및 공용 컴포넌트 생성.
 
----
-
 ## 주요 기능 요약
 
 1. **사용자 관리**
@@ -66,8 +61,6 @@ LG U+ 유레카 2기 미니 프로젝트 휴대폰 개통관리 프로그램(CRU
 
 4. **데이터베이스 연동**
     - MySQL 또는 기타 RDBMS와 연동하여 사용자, 휴대폰, 개통 내역 데이터를 저장하고 관리합니다.
-
----
 
 ## 실행 화면
 
